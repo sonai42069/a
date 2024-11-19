@@ -1,0 +1,293 @@
+/* .signup-login-full-container{
+  width: 100%;
+  background-image: url('./Image/d5.jpeg');
+  background-size: cover;
+} */
+
+/* Center the container content */
+.signup-login-container {
+position: fixed;
+   width: 400px;
+   margin: 600px;
+  margin-top: 50px;
+  /* background-color: #f2f2f2; */
+  padding: 20px;
+  text-align: center;
+  border: 0px solid rgb(14, 94, 92);
+  border-radius: 10px;
+  box-shadow: 0px 5px 15px rgb(26, 124, 124);
+
+}
+  /* Center the heading */
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2em;
+  }
+  
+  /* Flexbox for headings */
+/*   .heading {
+    display: flex;
+    justify-content: center;
+    width: 50%;
+    /* gap: 10px; 
+    margin-bottom: 20px;
+    border: 1px solid #03C1C0;
+    border-radius: 20px;
+    align-items: center;
+  } */
+
+  
+  /* Default styles for the lab and doctor divs */
+  .login-div, .signup-div{
+    padding-top: 0.8rem;
+    border-radius: 20px;
+    /* border: 1px solid #03C1C0; */
+    background-color: transparent; /* Set transparent for default */
+    color: #03C1C0;
+    /* width: calc(100%/2); */
+    /* height: 3rem; */
+    font-size: 17px;
+    text-align: center;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  /* Active class to change background and text color when clicked */
+  .lab.active, .doctor.active {
+    background-color: #03C1C0;
+    color: #fff;
+  }
+  
+  /* Align icon and input field on the same line */
+  .username {
+/*     display: flex;
+    align-items: center;
+    border: 1px #03C1C0;
+    width: 100%; */
+    display: flex;
+    align-items: center;
+    padding: 10px ;
+    background-color: #f2f2f2;
+    /* background-color: #03C1C0; */
+    border: 1px solid  #BBBBBB;
+    border-radius: 25px;
+    width: 100%;
+    height: 3rem;
+    
+    /* justify-content: space-between; */
+    margin-bottom: 20px;
+  }
+  .password {
+    background-color: #f2f2f2;
+    display: flex;
+    align-items: center;
+    padding: 10px ;
+    border: 1px solid  #BBBBBB;
+    border-radius: 25px;
+    width: 100%;
+    height: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  /* Style for icon */
+  .icon {
+    font-size: 1.5em;
+    opacity: 0.7;
+    /* margin-right: 10px; */
+    
+  }
+
+  
+  /* Adjust input width */
+  .username .input input {
+    width: 100%;
+    margin-left: 10px;
+    padding: 10px;
+    font-size: 1em;
+    outline: none;
+    border: none;
+    background-color: #f2f2f2;
+    /* border: 1px solid #ccc; */
+    
+    /* outline: none; */
+    /* box-sizing: border-box; */
+  }
+  .phone-number .input input {
+    border: none;
+    outline: none;
+  } 
+  /* Button styling */
+  .login-btn input[type="button"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #03c1c0;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  
+  /* Ensure login button is on the same line and aligned */
+  .login input[type="button"]:hover {
+    background-color: #007F80;
+    color: #fff;
+  }
+.password .input input {
+    font-size: 1.5rem;
+    
+    margin-left: 10px;
+    width: 200px;
+    padding: 10px;
+    font-size: 1em;
+    outline : none;
+    border: none;
+    background-color: #f2f2f2;
+    margin-right: 4.3rem;
+
+}
+  /* Add the eye icon next to the password input */
+.toggle-password {
+    
+    cursor: pointer;
+    font-size: 17px;
+    color: #333;
+    opacity: 0.7;
+  }
+
+  .toggle-password:hover {
+    /* color: #007bff; */
+    opacity: 0.7;
+  }
+
+
+
+
+ /*  signup form 
+   */
+
+
+
+/* Center the heading */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2em;
+}
+h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.4em;
+}
+.heading {
+  display: flex;
+/*     justify-content: center;
+  text-align: center; */
+  
+  width: 50%;
+  margin-bottom: 20px;
+  border: 1px solid #03C1C0;
+  border-radius: 20px;
+  /* align-items: center; */
+}
+/* Individual tab styling */
+.section {
+  width: calc(100%/2);
+  padding: 10px 20px;
+  /* margin: 0 10px; */
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Active tab styling */
+.section.active {
+  background-color: #03C1C0;
+  color: white;
+  border: 1px solid #03C1C0;
+}
+
+/* Flexbox for input fields */
+.username, .phone-number, .email, .password{
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #f2f2f2;
+  border: 1px solid #BBBBBB;
+  border-radius: 5px;
+  width: 100%;
+  height: 3rem;
+  margin-bottom: 20px;
+}
+
+/* Style for icons */
+.icon {
+  font-size: 1.5em;
+  opacity: 0.7;
+}
+
+/* Adjust input width */
+.input input {
+  width: 100%;
+  margin-left: 10px;
+  padding: 10px;
+  font-size: 1em;
+  outline: none;
+  border: none;
+  background-color: #f2f2f2;
+}
+
+/* Button styling */
+.signup-button input[type="button"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #03c1c0;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.login input[type="button"]:hover {
+  background-color: #007F80;
+  color: #fff;
+}
+
+.confirm-password{
+/*     width: 100%;
+  border: 1px solid #030303;
+  display: flex;
+  align-items: center; */
+  display: flex;
+  align-items: center;
+  padding: 10px ;
+  background-color: #f2f2f2;
+  border: 1px solid  #BBBBBB;
+  border-radius: 5px;
+  width: 100%;
+  height: 3rem;
+  margin-bottom: 20px;
+
+}
+.confirm-password input{
+  font-size: 1.5rem;
+  width: 100%;
+  margin-left: 10px;
+  width: auto;
+  padding: 10px;
+  font-size: 1em;
+  outline : none;
+  border: none;
+  background-color: #f2f2f2;
+  margin-right: 4.3rem;
+  
+}
+.confirm-password .toggle-password {
+  
+  cursor: pointer;
+  font-size: 17px;
+  color: #333;
+  opacity: 0.7;
+}

@@ -1,0 +1,101 @@
+.patient-diary {
+   margin-left:200px;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  .diary-header {
+    display: flex;
+    justify-content: space-between;
+    /* align-items: center; */
+    border-bottom: 3px solid black;
+    /* padding-bottom: 10px; */
+    /* position: sticky;
+    top:0px; */
+    height: 100px;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    
+  }
+  
+  
+  
+  .header-right {
+    color: green;
+    font-weight: bold;
+    display: flex;
+    /* align-items: center; */
+    flex-direction: column;
+    font-size: 10px;
+    /* line-height: 1; Decreases space between lines */
+  }
+  .header-right h2,
+  .header-right p {
+    margin: 0;           /* Removes margin between elements */
+    padding: 0;          /* Removes padding between elements */
+    line-height: 1.8;    /* Adjusts space between lines */
+  }
+  
+  .search-container {
+    margin: 20px 0;
+  }
+  
+  .receipt-container {
+    margin-top: 20px;
+    
+    margin-left: 200px; 
+    border:2px solid black;
+    width: 50%;
+    padding-left: 50px;
+    box-shadow: 2px 3px 3px gray;
+    background-color: rgba(177, 177, 221,0.5);
+  }
+  
+  .receipt-container h2 {
+    margin: 10px 0;
+  }
+  
+  .receipt-container p {
+    margin: 5px 0;
+  }
+  
+  .receipt-container input {
+    margin-left: 10px;
+    width: 100px; /* Adjust width as needed */
+  }
+  
+  .receipt-container button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    margin-left: 150px;
+    background-color: #03C1C0;
+    color: white;
+    border:3px solid black;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 20px;
+    font-family: bold;
+    text-align: center;
+  }
+  
+  .receipt-container button:hover {
+    background-color: #029a99;
+  }
+  .header-left h1 {
+    color: green; /* Change text color to green */
+    font-size: 20px; /* Set font size to 15px */
+  }
+  
+  .header-left .logo {
+    width: 50px;
+    height: 50px; /* Maintain aspect ratio */
+    border-radius: 25px;
+    margin: 5px;
+  
+  
+  }
+
