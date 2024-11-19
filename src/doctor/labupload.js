@@ -1,51 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { db, storage } from "../config/FirebaseConfig" // Import Firestore and Storage instances
-import { collection, addDoc, doc, updateDoc, getDoc } from "firebase/firestore"; // Firestore imports
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Firebase Storage imports
-import { useParams, useNavigate } from "react-router-dom"; // Import useParams for getting the ID
+import { db, storage } from "../config/FirebaseConfig";
+import { collection, addDoc, doc, updateDoc, getDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { useParams, useNavigate } from "react-router-dom";
 import "./labUpload.css";
 
 function LabInvoiceUpload() {
-    const [LaboratoryName, setLaboratoryName] = useState(""); // Lab Name
-    const [TotalAmount, setTotalAmount] = useState(""); // Total Amount
-    const [AmountPaid, setAmountPaid] = useState(""); // Amount Paid
-    const [DueAmount, setDueAmount] = useState(""); // Due Amount
-    const [file, setFile] = useState(null); // Selected file
-    const [image, setImage] = useState(null);
-    const [preview, setPreview] = useState(null); // Image preview (if applicable)
-    const [isEditing, setIsEditing] = useState(false); // Flag to check if editing
-    const { id } = useParams(); // Get the invoice ID from the URL
-    const navigate = useNavigate(); // Hook for navigation
+    const [laboratoryName, setLaboratoryName] = useState("");
+    const [totalAmount, setTotalAmount] = useState("");
+    const [amountPaid, setAmountPaid] = useState("");
+    const [file, setFile] = useState(null);
+    const [preview, setPreview] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
-    // List of laboratory names (replace with dynamic fetching if necessary)
-    const laboratoryOptions = [
-        "Lab A",
-        "Lab B",
-        "Lab C",
-        "Lab D",
-        "Lab E",
-    ];
+    const { id } = useParams();
+    const navigate = useNavigate();
+
+    const laboratoryOptions = ["Lab A", "Lab B", "Lab C", "Lab D", "Lab E"];
 
     useEffect(() => {
         const fetchInvoiceDetails = async () => {
-            if (id) {
-                try {
-                    const docRef = doc(db, "invoices", id);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        setLaboratoryName(data.LaboratoryName);
-                        setTotalAmount(data.TotalAmount);
-                        setAmountPaid(data.AmountPaid);
-                        setDueAmount(data.DueAmount);
-                        setPreview(data.fileUrl); // Use the file URL for preview
-                        setIsEditing(true);
-                    } else {
-                        console.log("No such document!");
-                    }
-                } catch (error) {
-                    console.error("Error fetching invoice details: ", error.message);
+            if (!id) return;
+
+            try {
+                const docRef = doc(db, "invoices", id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setLaboratoryName(data.laboratoryName);
+                    setTotalAmount(data.totalAmount.toString());
+                    setAmountPaid(data.amountPaid.toString());
+                    setPreview(data.fileUrl);
+                    setIsEditing(true);
                 }
+            } catch (error) {
+                console.error("Error fetching invoice details: ", error.message);
             }
         };
 
@@ -55,101 +45,97 @@ function LabInvoiceUpload() {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         setFile(selectedFile);
-        setPreview(selectedFile.type.startsWith("image/") ? URL.createObjectURL(selectedFile) : null);
+        setPreview(selectedFile && selectedFile.type.startsWith("image/") ? URL.createObjectURL(selectedFile) : null);
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Calculate DueAmount
-        const dueAmount = parseFloat(TotalAmount) - parseFloat(AmountPaid);
-        setDueAmount(dueAmount.toFixed(2)); // Update state with calculated due amount
-
+    
+        if (!laboratoryName || !totalAmount || !amountPaid || (!file && !isEditing)) {
+            alert("Please fill in all fields and upload a file.");
+            return;
+        }
+    
+        const dueAmount = (parseFloat(totalAmount) - parseFloat(amountPaid)).toFixed(2);
+    
         try {
+            const currentDate = new Date();
+            const formattedDate = currentDate.toLocaleDateString();
+            const formattedTime = currentDate.toLocaleTimeString();
+    
             if (isEditing) {
                 // Update existing invoice
-                const invoiceRef = doc(db, "invoices", id); // Reference to the document to update
-                const updatedData = {
-                    LaboratoryName,
-                    TotalAmount: parseFloat(TotalAmount),
-                    AmountPaid: parseFloat(AmountPaid),
-                    DueAmount: dueAmount,
+                const invoiceRef = doc(db, "invoices", id);
+                const updatedData = { 
+                    laboratoryName, 
+                    totalAmount: parseFloat(totalAmount), 
+                    amountPaid: parseFloat(amountPaid), 
+                    dueAmount, 
+                    uploadDate: formattedDate,    // Update the upload date
+                    uploadTime: formattedTime,    // Update the upload time
                 };
-
-                // If a new file is uploaded, handle file upload
-                if (file) {
-                    const fileExtension = file.name.split('.').pop(); // Extract the file extension
-                    const fileName = `${id}.${fileExtension}`; // Create the file name based on the ID
-                    const fileRef = ref(storage, `Invoices/${fileName}`); // Use the new file name
-
-                    // Upload file to Firebase Storage
+    
+                const docSnap = await getDoc(invoiceRef);
+    
+                if (docSnap.exists() && file) {
+                    const oldFileUrl = docSnap.data().fileUrl;
+                    const oldFileRef = ref(storage, `Invoices/${docSnap.data().fileName}`);
+                    
+                    // Delete old file if a new file is uploaded
+                    await deleteObject(oldFileRef);
+    
+                    const fileExtension = file.name.split('.').pop();
+                    const fileName = `${id}.${fileExtension}`;
+                    const fileRef = ref(storage, `Invoices/${fileName}`);
                     await uploadBytes(fileRef, file);
-                    const fileUrl = await getDownloadURL(fileRef); // Get file URL
-
-                    updatedData.fileName = fileName; // Update the file name
-                    updatedData.fileUrl = fileUrl; // Update the file URL
+                    updatedData.fileName = fileName;
+                    updatedData.fileUrl = await getDownloadURL(fileRef);
                 }
-
-                await updateDoc(invoiceRef, updatedData); // Update the document in Firestore
+    
+                await updateDoc(invoiceRef, updatedData);
                 alert("Invoice updated successfully!");
             } else {
-                // Auto-generate LaboratoryId for new invoice
-                const LaboratoryId = Date.now(); // Use current timestamp as a unique ID
-
-                // Get the file extension
-                const fileExtension = file.name.split('.').pop(); // Extract the file extension
-                const fileName = `${LaboratoryId}.${fileExtension}`; // Create the new file name
-                const fileRef = ref(storage, `Invoices/${fileName}`); // Use the new file name
-
-                // Upload file to Firebase Storage
+                // Add new invoice
+                const LaboratoryId = Date.now();
+                const fileExtension = file.name.split('.').pop();
+                const fileName = `${id}.${fileExtension}`;
+                const fileRef = ref(storage, `Invoices/${fileName}`);
                 await uploadBytes(fileRef, file);
-                const fileUrl = await getDownloadURL(fileRef); // Get file URL
-
-                // Get current date and time
-                const currentDate = new Date();
-                const formattedDate = currentDate.toLocaleDateString(); // Format date (e.g., "10/19/2024")
-                const formattedTime = currentDate.toLocaleTimeString(); // Format time (e.g., "3:30:00 PM")
-
-                // Save data to Firestore
+                const fileUrl = await getDownloadURL(fileRef);
+    
                 await addDoc(collection(db, "invoices"), {
                     LaboratoryId,
-                    LaboratoryName,
-                    TotalAmount: parseFloat(TotalAmount), // Ensure amounts are stored as numbers
-                    AmountPaid: parseFloat(AmountPaid),
-                    DueAmount: dueAmount,
-                    fileName, // Store the file name instead of the full URL
-                    fileUrl, // Optionally store the full URL for direct access
-                    uploadDate: formattedDate, // Save current date
-                    uploadTime: formattedTime, // Save current time
+                    laboratoryName,
+                    totalAmount: parseFloat(totalAmount),
+                    amountPaid: parseFloat(amountPaid),
+                    dueAmount,
+                    fileName,
+                    fileUrl,
+                    uploadDate: formattedDate,    // Set the upload date
+                    uploadTime: formattedTime,    // Set the upload time
                 });
-
-                alert("Invoice data saved successfully!");
+    
+                alert("Invoice uploaded successfully!");
             }
-
-            // Reset form
-            setLaboratoryName("");
-            setTotalAmount("");
-            setAmountPaid("");
-            setDueAmount("");
-            setFile(null);
-            setImage(null);
-            setPreview(null);
-            //navigate("/labuploadhistory"); // Redirect to the upload history page after submit
+    
+            navigate("/doctorlogin/labuploadhistory");
         } catch (error) {
-            console.error("Error saving data: ", error);
+            console.error("Error saving data:", error.message);
             alert("Failed to save data. Error: " + error.message);
         }
-    };
+    };  
+
 
     return (
         <div className="App-con">
             <form className="labupload-body-container" onSubmit={handleSubmit}>
-                <h1>{isEditing ? "Edit Invoice" : "Upload  Monthly Invoice "}</h1>
+                <h1>{isEditing ? "Edit Invoice" : "Upload Monthly Invoice"}</h1>
                 <div>
-                    <label>Laboratory Name</label><br />
+                    <label>Laboratory Name</label>
                     <select
                         className="styled-select"
-                        value={LaboratoryName}
+                        value={laboratoryName}
                         onChange={(e) => setLaboratoryName(e.target.value)}
                         required
                     >
@@ -162,36 +148,42 @@ function LabInvoiceUpload() {
                     </select>
                 </div>
                 <div>
-                    <label>Total Amount:</label><br />
+                    <label>Total Amount:</label>
                     <input
                         type="number"
-                        value={TotalAmount}
+                        value={totalAmount}
                         onChange={(e) => setTotalAmount(e.target.value)}
                         required
                     />
                 </div>
                 <div>
-                    <label>Amount Paid:</label><br />
+                    <label>Amount Paid:</label>
                     <input
                         type="number"
-                        value={AmountPaid}
+                        value={amountPaid}
                         onChange={(e) => setAmountPaid(e.target.value)}
                         required
                     />
                 </div>
                 <div>
                     <label>Upload File:</label>
-                    <input 
-                        type="file" 
-                        accept="image/*,.pdf,.doc,.docx" // Allow image, PDF, and DOC files
-                        onChange={handleFileChange} 
+                    <input
+                        type="file"
+                        accept="image/*,.pdf,.doc,.docx"
+                        onChange={handleFileChange}
                     />
                 </div>
-                {/* Optional: Show image preview if an image is uploaded */}
                 {preview && (
                     <div>
-                        <h3>Image Preview:</h3>
+                        <h3>Invoice Preview:</h3>
                         <img src={preview} alt="Preview" className="image" />
+                        {/* {preview.startsWith("http") ? (
+                            <a href={preview} target="_blank" rel="noopener noreferrer">
+                                View Current File
+                            </a>
+                        ) : (
+                            <img src={preview} alt="Preview" className="image" />
+                        )} */}
                     </div>
                 )}
                 <button className="labUploadbutton" type="submit">{isEditing ? "Update" : "Submit"}</button>

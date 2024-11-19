@@ -15,19 +15,21 @@ function LaboratoryUploadHistory() {
     useEffect(() => {
         const fetchPatientsLabReports = async () => {
             try {
-                const PatientsLabReportsCollection = collection(db, "PatientsLabReports");
+                const PatientsLabReportsCollection = collection(db, "Patients Lab Reports");
                 const PatientsLabReportsQuery = query(PatientsLabReportsCollection, orderBy("uploadTime", "desc"));
                 const PatientsLabReportsSnapshot = await getDocs(PatientsLabReportsQuery);
 
                 const PatientsLabReportsList = [];
                 for (const doc of PatientsLabReportsSnapshot.docs) {
                     const data = doc.data();
-                    PatientsLabReportsList.push({ id: doc.id, ...data });
+                    const fileRef = ref(storage, `Patients Lab Reports/${data.fileName}`);
+                    const imageUrl = await getDownloadURL(fileRef); // Fetch image URL
+                    PatientsLabReportsList.push({ id: doc.id, imageUrl, ...data });
                 }
 
                 setPatientsLabReports(PatientsLabReportsList);
             } catch (error) {
-                console.error("Error fetching invoices: ", error.message);
+                console.error("Error fetching reports: ", error.message);
             } finally {
                 setLoading(false);
             }
@@ -38,19 +40,19 @@ function LaboratoryUploadHistory() {
 
     const handleDelete = async (id, fileName) => {
         try {
-            const fileRef = ref(storage, `PatientsLabReports/${fileName}`);
+            const fileRef = ref(storage, `Patients Lab Reports/${fileName}`);
             await deleteObject(fileRef);
 
-            await deleteDoc(doc(db, "PatientsLabReports", id));
+            await deleteDoc(doc(db, "Patients Lab Reports", id));
             setPatientsLabReports(PatientsLabReports.filter((PatientsLabReport) => PatientsLabReport.id !== id));
         } catch (error) {
-            console.error("Error deleting Reports or file: ", error.message);
+            console.error("Error deleting report or file: ", error.message);
         }
     };
 
     const handleDownload = async (PatientsLabReport) => {
         try {
-            const fileRef = ref(storage, `PatientsLabReports/${PatientsLabReport.fileName}`);
+            const fileRef = ref(storage, `Patients Lab Reports/${PatientsLabReport.fileName}`);
             const downloadUrl = await getDownloadURL(fileRef);
             const link = document.createElement("a");
             link.href = downloadUrl;
@@ -66,6 +68,8 @@ function LaboratoryUploadHistory() {
 
     const filteredReports = PatientsLabReports.filter((report) => {
         const withinSearchTerm = report.patientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                 report.pictureName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                 report.pictureDetails.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                  report.patientId.toLowerCase().includes(searchTerm.toLowerCase());
 
         if (!withinSearchTerm) return false;
@@ -98,7 +102,7 @@ function LaboratoryUploadHistory() {
     return (
         <div className="labuploadhistoryApp-con">
             <div className="view-labreport-header-container">
-                <h1 className="view-labreport-header">Patients Lab Reports History</h1>
+                <h1 className="view-labreport-header" style={{ paddingLeft: "550px", alignItems: "center" }}>View Patients Lab Reports</h1>
 
                 <div className="search-filter-container">
                     <input 
@@ -137,6 +141,7 @@ function LaboratoryUploadHistory() {
                                 <th>Report Details</th>
                                 <th>Upload Date</th>
                                 <th>Upload Time</th>
+                                <th>Picture Preview</th>
                                 <th style={{ textAlign: "center" }}>Actions</th>
                             </tr>
                         </thead>
@@ -149,8 +154,15 @@ function LaboratoryUploadHistory() {
                                     <td>{PatientsLabReport.pictureDetails}</td>
                                     <td>{PatientsLabReport.uploadDate}</td>
                                     <td>{PatientsLabReport.uploadTime}</td>
+                                    <td>
+                                        <center><img 
+                                            src={PatientsLabReport.imageUrl} 
+                                            alt={PatientsLabReport.pictureName} 
+                                            style={{ height: "50px", width: "40px" ,alignItems: "center" }} 
+                                        /></center>
+                                    </td>
                                     <td className="labuploadhistory-actionbutton">
-                                        <button onClick={() => navigate(`/labupload/${PatientsLabReport.id}`)}>Edit</button>
+                                        <button onClick={() => navigate(`/doctorlogin/patientlab/${PatientsLabReport.id}`)}>Edit</button>
                                         <button onClick={() => handleDelete(PatientsLabReport.id, PatientsLabReport.fileName)}>Delete</button>
                                         <button onClick={() => handleDownload(PatientsLabReport)}>Download</button>
                                     </td>

@@ -82,6 +82,7 @@ function App() {
             <Route path="view-Appointments" element={<ViewFutureAppointment />} />            
             <Route path="diary" element={<PatientDiary />} />
             <Route path="patientlab" element={<Patientlabrecords />} />
+            <Route path="patientlab/:id" element={<Patientlabrecords />} />
             <Route path="labUpload" element={<LabUpload />} />
             <Route path="viewLabReports" element={<ViewLabReports />} />
             <Route path="labUploadHistory" element={<LabHistory />} />
@@ -95,6 +96,7 @@ function App() {
             <Route path="AddConsultant" element={<AddConsultant />} />
             <Route path="consultantAppointmentReschedule" element={<RescheduleConsultant />} />
             <Route path="consultantAppointmentCancel" element={<CancelConsultantAppointment />} />
+            <Route path="labupload/:id" element={<LabUpload />} />
    
           </Route>
         ) : (

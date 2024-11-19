@@ -62,17 +62,21 @@ function LaboratoryUploadHistory() {
     };
 
     const filteredReports = reports.filter((report) => {
-        const matchesSearch = 
-            report.LaboratoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            report.patientId.toLowerCase().includes(searchTerm.toLowerCase());
-
+        const matchesSearch =
+            (report.laboratoryName?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+            (report.laboratoryId?.toString().toLowerCase().includes(searchTerm.toLowerCase()) || false) || // Convert int to string
+            (new Date(report.uploadDate)?.toISOString().toLowerCase().includes(searchTerm.toLowerCase()) || false) || // Convert date to ISO string
+            (new Date(report.uploadTime)?.toLocaleTimeString().toLowerCase().includes(searchTerm.toLowerCase()) || false) || // Format time
+            (report.totalAmount?.toString().toLowerCase().includes(searchTerm.toLowerCase()) || false) || // Convert number to string
+            (report.amountPaid?.toString().toLowerCase().includes(searchTerm.toLowerCase()) || false); // Convert number to string
+    
         if (!matchesSearch) return false;
-
+    
         if (filterOption === "All") return true;
-
+    
         const today = new Date();
         const reportDate = new Date(report.uploadDate);
-
+    
         switch (filterOption) {
             case "1 Day":
                 return today - reportDate <= 1 * 24 * 60 * 60 * 1000;
@@ -88,7 +92,7 @@ function LaboratoryUploadHistory() {
                 return true;
         }
     });
-
+    
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -96,7 +100,7 @@ function LaboratoryUploadHistory() {
     return (
         <div className="labuploadhistoryApp-con">
             <div className="view-labreport-header-container">
-                <h1 className="view-labreport-header">Patients Lab Reports History</h1>
+                <h1 className="view-labreport-header" style={{ paddingLeft: "650px", alignItems: "center" }}>Invoices History</h1>
 
                 <div className="search-filter-container">
                     <input 
@@ -140,14 +144,14 @@ function LaboratoryUploadHistory() {
                         <tbody className="labuploadhistorytbody">
                             {filteredReports.map((report) => (
                                 <tr key={report.id}>
-                                    <td>{report.LaboratoryName}</td>
-                                    <td>{report.TotalAmount}</td>
-                                    <td>{report.AmountPaid}</td>
-                                    <td>{report.DueAmount}</td>
+                                    <td>{report.laboratoryName}</td>
+                                    <td>{report.totalAmount}</td>
+                                    <td>{report.amountPaid}</td>
+                                    <td>{report.dueAmount}</td>
                                     <td>{report.uploadDate}</td>
                                     <td>{report.uploadTime}</td>
                                     <td className="labuploadhistory-actionbutton">
-                                        <button onClick={() => navigate(`/labupload/${report.id}`)}>Edit</button>
+                                        <button onClick={() => navigate(`/doctorlogin/labupload/${report.id}`)}>Edit</button>
                                         <button onClick={() => handleDelete(report.id, report.fileName)}>Delete</button>
                                         <button onClick={() => handleDownload(report)}>Download</button>
                                     </td>
